@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFresh - Never Let Food Go to Waste Again</title>
+    <meta name="description" content="Track your groceries, reduce food waste, and save money with SmartFresh - Your intelligent food inventory companion.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+    <div class="grain-overlay"></div>
+    
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="logo-wrapper">
+                    <img src="gol.png" alt="SmartFresh Logo" class="nav-logo">
+                    <div class="logo-glow"></div>
+                </div>
+                <span class="nav-title">SmartFresh</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">
+                    <span>Features</span>
+                    <div class="link-underline"></div>
+                </a>
+                <a href="#how-it-works" class="nav-link">
+                    <span>How It Works</span>
+                    <div class="link-underline"></div>
+                </a>
+                <a href="#benefits" class="nav-link">
+                    <span>Benefits</span>
+                    <div class="link-underline"></div>
+                </a>
+                <a href="login.html" class="btn-nav-login">
+                    <span>Login</span>
+                </a>
+                <a href="login.html" class="btn-nav-signup">
+                    <span>Get Started</span>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-content">
+            <a href="#features" class="mobile-link">Features</a>
+            <a href="#how-it-works" class="mobile-link">How It Works</a>
+            <a href="#benefits" class="mobile-link">Benefits</a>
+            <a href="login.html" class="mobile-link">Login</a>
+            <a href="login.html" class="btn-mobile-signup">
+                <span>Get Started</span>
+                <div class="btn-shine"></div>
+            </a>
+        </div>
+    </div>
+
+    <section class="hero">
+        <div class="hero-bg">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+            <div class="mesh-gradient"></div>
+        </div>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge" data-aos="fade-up">
+                    <div class="badge-glow"></div>
+                    <span class="badge-dot"></span>
+                    <span>Track • Save • Reduce Waste</span>
+                </div>
+                
+                <h1 class="hero-title" data-aos="fade-up" data-aos-delay="100">
+                    Never Let Food Go to
+                    <span class="title-gradient">Waste</span>
+                    <span class="title-highlight">Again</span>
+                    <div class="title-decoration"></div>
+                </h1>
+                
+                <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">
+                    SmartFresh helps you track your groceries, get expiry alerts, and save money by reducing food waste. Manage multiple inventories across your home, office, or anywhere.
+                </p>
+                
+                <div class="hero-cta" data-aos="fade-up" data-aos-delay="300">
+                    <a href="login.html" class="btn-primary">
+                        <span>Start For Free</span>
+                        <div class="btn-particles"></div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    <a href="https://github.com/tejasparmarr/Smart-Fresh/releases/download/v1.0.0/Smart.Fresh.apk" class="btn-secondary" download>
+                        <div class="btn-glass"></div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <span>Download APP</span>
+                    </a>
+                </div>
+                
+                <div class="hero-stats" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-item">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-details">
+                            <div class="stat-value">₹2,400+</div>
+                            <div class="stat-label">Avg. Yearly Savings</div>
+                        </div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📉</div>
+                        <div class="stat-details">
+                            <div class="stat-value">70%</div>
+                            <div class="stat-label">Less Food Waste</div>
+                        </div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-icon">🎉</div>
+                        <div class="stat-details">
+                            <div class="stat-value">1000+</div>
+                            <div class="stat-label">Happy Users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-image" data-aos="fade-left" data-aos-delay="200">
+                <div class="phone-mockup">
+                    <div class="phone-glow"></div>
+                    <div class="phone-frame">
+                        <div class="phone-notch"></div>
+                        <div class="phone-screen">
+                            <div class="screen-gradient"></div>
+                            <div class="screen-header">
+                                <div class="screen-time">10:56</div>
+                                <div class="screen-icons">
+                                    <div class="signal-icon"></div>
+                                    <div class="battery-icon"></div>
+                                </div>
+                            </div>
+                            <div class="screen-content">
+                                <div class="screen-title">SmartFresh</div>
+                                <div class="inventory-card glass-effect">
+                                    <div class="inventory-icon">🏠</div>
+                                    <div class="inventory-text">
+                                        <div class="inventory-label">Current Inventory</div>
+                                        <div class="inventory-name">Ghar</div>
+                                    </div>
+                                    <div class="inventory-arrow">›</div>
+                                </div>
+                                
+                                <div class="overview-label">Overview</div>
+                                
+                                <div class="stats-grid">
+                                    <div class="mini-card green glass-effect">
+                                        <div class="mini-icon">📦</div>
+                                        <div class="mini-value" data-count="3">3</div>
+                                        <div class="mini-label">Total Items</div>
+                                        <div class="mini-badge green-badge">Active</div>
+                                    </div>
+                                    <div class="mini-card blue glass-effect">
+                                        <div class="mini-icon">💰</div>
+                                        <div class="mini-value">₹2454</div>
+                                        <div class="mini-label">Total Value</div>
+                                        <div class="mini-badge blue-badge">+12%</div>
+                                    </div>
+                                    <div class="mini-card orange glass-effect">
+                                        <div class="mini-icon">⚠️</div>
+                                        <div class="mini-value" data-count="3">3</div>
+                                        <div class="mini-label">Expiring Soon</div>
+                                        <div class="mini-badge orange-badge">7 Days</div>
+                                    </div>
+                                    <div class="mini-card red glass-effect">
+                                        <div class="mini-icon">❌</div>
+                                        <div class="mini-value" data-count="0">0</div>
+                                        <div class="mini-label">Expired</div>
+                                        <div class="mini-badge red-badge">₹0</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="financial-insights">
+                                    <div class="insights-header">Financial Insights</div>
+                                    <div class="insights-grid">
+                                        <div class="insight-item saved">
+                                            <div class="insight-icon">📈</div>
+                                            <div class="insight-amount">₹2454</div>
+                                            <div class="insight-label">Money Saved</div>
+                                        </div>
+                                        <div class="insight-divider"></div>
+                                        <div class="insight-item wasted">
+                                            <div class="insight-icon">📉</div>
+                                            <div class="insight-amount">₹0</div>
+                                            <div class="insight-label">Wasted</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="phone-shadow"></div>
+                    <div class="floating-emoji emoji-1"></div>
+                    <div class="floating-emoji emoji-2"></div>
+                    <div class="floating-emoji emoji-3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <span>Scroll to explore</span>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-badge">
+                    <span class="badge-icon">✨</span>
+                    <span>Powerful Features</span>
+                </div>
+                <h2 class="section-title">
+                    Everything You Need for
+                    <span class="gradient-text">Smart Inventory</span>
+                </h2>
+                <p class="section-subtitle">Manage your food inventory like a pro with these amazing features</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card glass-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon-container green-gradient">
+                        <span class="feature-emoji">📦</span>
+                        <div class="icon-orbit"></div>
+                    </div>
+                    <h3 class="feature-title">Multi-Inventory</h3>
+                    <p class="feature-description">Track multiple locations - home, office, hostel. Switch between inventories instantly with QR code sharing.</p>
+                    <div class="feature-link">
+                        <span></span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="feature-card glass-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon-container orange-gradient">
+                        <span class="feature-emoji">⏰</span>
+                        <div class="icon-orbit"></div>
+                    </div>
+                    <h3 class="feature-title">Expiry Alerts</h3>
+                    <p class="feature-description">Get notified before items expire. View calendar and list of expiring items with color-coded warnings.</p>
+                    <div class="feature-link">
+                        <span></span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="feature-card glass-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon-container blue-gradient">
+                        <span class="feature-emoji">📊</span>
+                        <div class="icon-orbit"></div>
+                    </div>
+                    <h3 class="feature-title">Financial Insights</h3>
+                    <p class="feature-description">Track money saved vs. wasted. See your savings percentage and reduce unnecessary spending.</p>
+                    <div class="feature-link">
+                        <span></span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="feature-card glass-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon-container purple-gradient">
+                        <span class="feature-emoji">📱</span>
+                        <div class="icon-orbit"></div>
+                    </div>
+                    <h3 class="feature-title">Barcode Scanner</h3>
+                    <p class="feature-description">Scan product barcodes to auto-fill item details. Add items to inventory in seconds.</p>
+                    <div class="feature-link">
+                        <span></span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="feature-card glass-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon-container red-gradient">
+                        <span class="feature-emoji">🛒</span>
+                        <div class="icon-orbit"></div>
+                    </div>
+                    <h3 class="feature-title">Shopping Lists</h3>
+                    <p class="feature-description">Create shopping lists, mark items as purchased, and add them directly to your inventory.</p>
+                    <div class="feature-link">
+                        <span></span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="feature-card glass-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-glow"></div>
+                    <div class="feature-icon-container teal-gradient">
+                        <span class="feature-emoji">☁️</span>
+                        <div class="icon-orbit"></div>
+                    </div>
+                    <h3 class="feature-title">Cloud Sync</h3>
+                    <p class="feature-description">Real-time synchronization across all devices. Share inventories with family members instantly.</p>
+                    <div class="feature-link">
+                        <span></span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-badge">
+                    <span class="badge-icon">🚀</span>
+                    <span>Simple Process</span>
+                </div>
+                <h2 class="section-title">
+                    Get Started in
+                    <span class="gradient-text">3 Easy Steps</span>
+                </h2>
+            </div>
+            
+            <div class="steps-container">
+                <div class="step-card" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="step-glow"></div>
+                    <div class="step-number">
+                        <span>01</span>
+                        <div class="number-trail"></div>
+                    </div>
+                    <div class="step-icon">📝</div>
+                    <h3 class="step-title">Add Your Items</h3>
+                    <p class="step-description">Scan barcodes or manually add groceries with details like quantity, price, and expiry date.</p>
+                    <div class="step-decoration"></div>
+                </div>
+                
+                <div class="step-connector" data-aos="fade-right" data-aos-delay="200">
+                    <div class="connector-line"></div>
+                    <div class="connector-dot"></div>
+                </div>
+                
+                <div class="step-card" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="step-glow"></div>
+                    <div class="step-number">
+                        <span>02</span>
+                        <div class="number-trail"></div>
+                    </div>
+                    <div class="step-icon">🔔</div>
+                    <h3 class="step-title">Get Smart Alerts</h3>
+                    <p class="step-description">Receive notifications when items are about to expire. View them in calendar or list format.</p>
+                    <div class="step-decoration"></div>
+                </div>
+                
+                <div class="step-connector" data-aos="fade-right" data-aos-delay="400">
+                    <div class="connector-line"></div>
+                    <div class="connector-dot"></div>
+                </div>
+                
+                <div class="step-card" data-aos="zoom-in" data-aos-delay="500">
+                    <div class="step-glow"></div>
+                    <div class="step-number">
+                        <span>03</span>
+                        <div class="number-trail"></div>
+                    </div>
+                    <div class="step-icon">💰</div>
+                    <h3 class="step-title">Save Money</h3>
+                    <p class="step-description">Track your savings, reduce waste, and make informed shopping decisions.</p>
+                    <div class="step-decoration"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits" id="benefits">
+        <div class="container">
+            <div class="benefits-layout">
+                <div class="benefits-content" data-aos="fade-right">
+                    <div class="section-badge">
+                        <span class="badge-icon">💡</span>
+                        <span>Why Choose SmartFresh?</span>
+                    </div>
+                    <h2 class="benefits-title">
+                        Reduce Waste, Save Money,
+                        <span class="gradient-text">Live Better</span>
+                    </h2>
+                    
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <div class="benefit-icon-wrapper">
+                                <div class="benefit-icon">✅</div>
+                                <div class="icon-pulse"></div>
+                            </div>
+                            <div class="benefit-text">
+                                <h4>Never Forget What You Have</h4>
+                                <p>Always know what's in your kitchen. Avoid buying duplicates and save time shopping.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon-wrapper">
+                                <div class="benefit-icon">✅</div>
+                                <div class="icon-pulse"></div>
+                            </div>
+                            <div class="benefit-text">
+                                <h4>Stop Throwing Money Away</h4>
+                                <p>Average households waste ₹2,000-₹5,000 yearly on expired food. SmartFresh helps you save it.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon-wrapper">
+                                <div class="benefit-icon">✅</div>
+                                <div class="icon-pulse"></div>
+                            </div>
+                            <div class="benefit-text">
+                                <h4>Help the Environment</h4>
+                                <p>Reduce food waste and your carbon footprint. Every saved item makes a difference.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon-wrapper">
+                                <div class="benefit-icon">✅</div>
+                                <div class="icon-pulse"></div>
+                            </div>
+                            <div class="benefit-text">
+                                <h4>Share with Family</h4>
+                                <p>Multiple users can access the same inventory. Perfect for roommates and families.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="login.html" class="btn-benefits">
+                        <span>Start Saving Today</span>
+                        <div class="btn-shimmer"></div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+                
+                <div class="benefits-visual" data-aos="fade-left">
+                    <div class="visual-card savings glass-effect">
+                        <div class="card-particles"></div>
+                        <div class="visual-header">
+                            <span class="visual-emoji">💰</span>
+                            <span class="visual-title">Monthly Savings</span>
+                        </div>
+                        <div class="visual-amount" data-value="1400">₹7600</div>
+                        <div class="visual-chart">
+                            <div class="chart-bar" data-height="60"><span class="bar-label">Week 1</span></div>
+                            <div class="chart-bar" data-height="75"><span class="bar-label">Week 2</span></div>
+                            <div class="chart-bar" data-height="85"><span class="bar-label">Week 3</span></div>
+                            <div class="chart-bar" data-height="100"><span class="bar-label">Week 4</span></div>
+                        </div>
+                        <div class="visual-footer">
+                            <span class="trend-icon">↑</span>
+                            <span>74% from last month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="visual-card items glass-effect">
+                        <div class="visual-stat">
+                            <div class="stat-emoji-wrapper">
+                                <span class="stat-emoji">📦</span>
+                                <div class="emoji-glow"></div>
+                            </div>
+                            <div>
+                                <div class="stat-number" data-count="24">68</div>
+                                <div class="stat-text">Items Tracked</div>
+                            </div>
+                        </div>
+                        <div class="stat-divider-line"></div>
+                        <div class="visual-stat">
+                            <div class="stat-emoji-wrapper">
+                                <span class="stat-emoji">🥬</span>
+                                <div class="emoji-glow"></div>
+                            </div>
+                            <div>
+                                <div class="stat-number" data-count="8">59</div>
+                                <div class="stat-text">Fresh Items</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-bg">
+            <div class="cta-orb orb-1"></div>
+            <div class="cta-orb orb-2"></div>
+        </div>
+        
+        <div class="container">
+            <div class="cta-content" data-aos="zoom-in">
+                <div class="cta-icon">🎉</div>
+                <h2 class="cta-title">Ready to Stop Wasting Food?</h2>
+                <p class="cta-subtitle">Join thousands of users who are saving money and reducing waste with SmartFresh</p>
+                
+                <div class="cta-buttons">
+                    <a href="login.html" class="btn-cta-primary">
+                        <span>Get Started Free</span>
+                        <div class="btn-ripple"></div>
+                    </a>
+                    <a href="#features" class="btn-cta-secondary">
+                        <div class="btn-glass-effect"></div>
+                        <span>Learn More</span>
+                    </a>
+                </div>
+                
+                <div class="cta-features">
+                    <div class="cta-feature">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M20 6L9 17l-5-5"/>
+                        </svg>
+                        <span>No credit card required</span>
+                    </div>
+                    <div class="cta-feature">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M20 6L9 17l-5-5"/>
+                        </svg>
+                        <span>Free forever</span>
+                    </div>
+                    <div class="cta-feature">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M20 6L9 17l-5-5"/>
+                        </svg>
+                        <span>Setup in 2 minutes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper">
+                        <img src="gol.png" alt="SmartFresh Logo" class="footer-logo">
+                        <div class="logo-shine"></div>
+                    </div>
+                    <span class="footer-title">SmartFresh</span>
+                    <p class="footer-tagline">Smart food inventory management for everyone</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Facebook">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" fill="none" stroke="white" stroke-width="2"/>
+                                ircle cx="17.5" cy="6.5" r="1" fill="white"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <a href="#features" class="footer-link">Features</a>
+                        <a href="#how-it-works" class="footer-link">How It Works</a>
+                        
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <a href="#" class="footer-link">About Us</a>
+                        
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <a href="#" class="footer-link">Privacy Policy</a>
+                        <a href="#" class="footer-link">Terms of Service</a>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 SmartFresh. All rights reserved. Made with 💚 in India by TEJAS PARMAR</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/landing.js"></script>
+</body>
+</html>
