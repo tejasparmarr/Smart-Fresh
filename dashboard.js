@@ -135,6 +135,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const firstLetter = storedName.trim().charAt(0).toUpperCase() || "U";
     userInitialEl.textContent = firstLetter;
   }
+  // ---------- Savings Summary period (global) ----------
+window.dashboardSavingsPeriod = "overall";
+
+const savingsPeriodTabs = document.getElementById("savingsPeriodTabs");
+
+// ---------- Savings Summary period tabs ----------
+if (savingsPeriodTabs) {
+  savingsPeriodTabs.addEventListener("click", (event) => {
+    const btn = event.target.closest(".savings-tab[data-period]");
+    if (!btn) return;
+
+    const period = btn.getAttribute("data-period") || "overall";
+    window.dashboardSavingsPeriod = period;
+
+    // Toggle active class on tabs
+    savingsPeriodTabs
+      .querySelectorAll(".savings-tab[data-period]")
+      .forEach((b) => b.classList.toggle("active", b === btn));
+
+    // Recalculate dashboard for this period
+    updateDashboardUI();
+  });
+}
+
 
   // ---------- Multi-Inventory Service ----------
 
@@ -367,21 +391,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ---------- Stats Calculation (CORRECTED FORMULA) ----------
+// ---------- Stats Calculation with Financial Periods ----------
 
-  // ---------- Stats Calculation with Financial Periods (matches app logic) ----------
-
-// normalize Timestamp / Date / string
+// helper to normalize dates safely (does NOT change any caller code)
 function asDateWeb(value) {
   if (!value) return null;
   if (value.toDate) return value.toDate();
   return new Date(value);
 }
 
-// range start for given period
+// small helper for savings summary period
 function getStartDateForSavingsPeriod(period) {
   const now = new Date();
-  if (period === "overall") return null;
+  if (!period || period === "overall") return null;
   if (period === "today") {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   }
@@ -392,60 +414,55 @@ function getStartDateForSavingsPeriod(period) {
   return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 }
 
-/**
- * period:
- *  - "overall" : all fresh items profit, all expired items loss
- *  - "today"   : profit = fresh items purchased today, loss = items expiring today
- *  - "week"    : profit = fresh items purchased last 7 days, loss = items expired last 7 days
- *  - "month"   : profit = fresh items purchased last 30 days, loss = items expired last 30 days
- */
+// period is optional so old calls still work: computeInventoryStats(inventoryItems)
 function computeInventoryStats(items, period = "overall") {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   let totalItems = items.length;
-  let totalValue = 0;      // for top tiles (all items)
+  let totalValue = 0; // All items (fresh + expired)
   let expiringSoon = 0;
   let expired = 0;
-  let expiredValue = 0;    // total expired (for top tile)
+  let expiredValue = 0; // Only expired items
 
+  // NEW: fields for the Savings Summary “financial insight” view
   const startDate = getStartDateForSavingsPeriod(period);
-  let freshValue = 0;          // profit (fresh items in view)
-  let periodExpiredValue = 0;  // loss (expired items in view)
-
+  let freshValue = 0;          // profit = fresh items
+  let periodExpiredValue = 0;  // loss = expired items in selected period
   const now = new Date();
 
   items.forEach((item) => {
     const qty = Number(item.quantity) || 1;
     const ppu = Number(item.pricePerUnit) || 0;
     const itemTotalValue = qty * ppu;
+
+    // Total value includes ALL items
     totalValue += itemTotalValue;
 
     const expiryDate = asDateWeb(item.expiryDate);
-    const purchaseDate = asDateWeb(item.createdAt || item.purchaseDate);
+    if (!expiryDate || isNaN(expiryDate.getTime())) return;
 
-    if (expiryDate && !isNaN(expiryDate.getTime())) {
-      const expCopy = new Date(expiryDate);
-      expCopy.setHours(0, 0, 0, 0);
-      const diffDays = Math.ceil((expCopy - today) / (1000 * 60 * 60 * 24));
-      if (diffDays < 0) {
-        expired += 1;
-        expiredValue += itemTotalValue;
-      } else if (diffDays <= 7) {
-        expiringSoon += 1;
-      }
+    const expDate = new Date(expiryDate);
+    expDate.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      expired += 1;
+      expiredValue += itemTotalValue;
+    } else if (diffDays <= 7) {
+      expiringSoon += 1;
     }
 
-    // ---- financial view logic ----
-    const isExpired = expiryDate && expiryDate < now;
+    // --------- financial insight logic (for Savings Summary) ---------
+    const purchaseDate = asDateWeb(item.createdAt || item.purchaseDate);
+    const isExpired = expiryDate < now;
     const expiredSameDay =
-      expiryDate &&
       expiryDate.getFullYear() === now.getFullYear() &&
       expiryDate.getMonth() === now.getMonth() &&
       expiryDate.getDate() === now.getDate();
 
-    // Overall: all fresh = profit, all expired = loss
-    if (period === "overall") {
+    // OVERALL mode: all fresh items = profit, all expired = loss
+    if (!startDate || period === "overall") {
       if (!isExpired) {
         freshValue += itemTotalValue;
       } else {
@@ -454,9 +471,8 @@ function computeInventoryStats(items, period = "overall") {
       return;
     }
 
-    if (!startDate) return;
-
-    // Profit: fresh items within purchase window
+    // period-specific: today / week / month
+    // profit = fresh items whose purchaseDate is within the window
     if (
       !isExpired &&
       purchaseDate &&
@@ -466,7 +482,7 @@ function computeInventoryStats(items, period = "overall") {
       freshValue += itemTotalValue;
     }
 
-    // Loss: expired items within window
+    // loss = expired items whose expiryDate is within the window
     if (
       isExpired &&
       expiryDate &&
@@ -481,46 +497,46 @@ function computeInventoryStats(items, period = "overall") {
     }
   });
 
-  // profit %
-  let profitPercentage = 0;
+  // OLD behaviour for saved / percentSaved (kept compatible)
+  let saved;
+  let percentSaved;
   if (period === "overall") {
-    if (freshValue + periodExpiredValue > 0) {
-      profitPercentage = Math.round(
-        (freshValue / (freshValue + periodExpiredValue)) * 100
-      );
-    }
+    saved = totalValue - expiredValue;
+    percentSaved = totalValue > 0 ? Math.round((saved / totalValue) * 100) : 100;
   } else {
+    // For other periods, use the financial-view interpretation
+    saved = freshValue;
     if (periodExpiredValue === 0 && freshValue > 0) {
-      profitPercentage = 100;
+      percentSaved = 100;
     } else if (freshValue + periodExpiredValue > 0) {
-      profitPercentage = Math.round(
+      percentSaved = Math.round(
         (freshValue / (freshValue + periodExpiredValue)) * 100
       );
+    } else {
+      percentSaved = 0;
     }
   }
 
-  const saved = freshValue;         // profit in this view
-  const percentSaved = profitPercentage;
-
   return {
-    // top tiles
     totalItems,
     totalValue,
     expiringSoon,
     expired,
     expiredValue,
-    // savings summary
     saved,
     percentSaved,
     periodLoss: periodExpiredValue,
+    periodProfit: freshValue,
   };
 }
 
-// called whenever inventoryItems or selected period changes
 function updateDashboardUI() {
-  const stats = computeInventoryStats(inventoryItems, dashboardSavingsPeriod);
+  // use global period if set; fallback to "overall"
+  const stats = computeInventoryStats(
+    inventoryItems,
+    window.dashboardSavingsPeriod || "overall"
+  );
 
-  // ---- top 4 stat cards (unchanged) ----
   if (totalItemsEl) totalItemsEl.textContent = String(stats.totalItems);
   if (totalValueEl)
     totalValueEl.textContent = `₹${stats.totalValue.toLocaleString("en-IN")}`;
@@ -531,25 +547,21 @@ function updateDashboardUI() {
       "en-IN"
     )} wasted`;
 
-  // ---- Savings Summary card uses financial insight logic ----
-  if (savingsVsWasteEl) {
+  if (savingsVsWasteEl)
     savingsVsWasteEl.textContent = `₹${stats.saved.toLocaleString(
       "en-IN"
-    )} / ₹${stats.periodLoss.toLocaleString("en-IN")}`;
-  }
-  if (savingsPercentEl) {
+    )} / ₹${(stats.periodLoss ?? stats.expiredValue).toLocaleString(
+      "en-IN"
+    )}`;
+
+  if (savingsPercentEl)
     savingsPercentEl.textContent = `${stats.percentSaved}% saved`;
-  }
-  if (itemsConsumedEl) {
+  if (itemsConsumedEl)
     itemsConsumedEl.textContent = String(stats.totalItems - stats.expired);
-  }
-  if (itemsWastedEl) {
-    itemsWastedEl.textContent = String(stats.expired);
-  }
-  if (itemsChangeEl) {
-    itemsChangeEl.textContent = `+${stats.totalItems} items`;
-  }
+  if (itemsWastedEl) itemsWastedEl.textContent = String(stats.expired);
+  if (itemsChangeEl) itemsChangeEl.textContent = `+${stats.totalItems} items`;
 }
+
 
   // ---------- Expiry Table with Click-to-Edit ----------
 
