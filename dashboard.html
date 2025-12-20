@@ -36,6 +36,7 @@
     Timestamp,
   } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+
   const firebaseConfig = {
     apiKey: "AIzaSyA92hAm4SZHRPZWv9AVNRKZA1EIv8Z-Ftk",
     authDomain: "smartfresh-c9f41.firebaseapp.com",
@@ -46,9 +47,11 @@
     measurementId: "G-DVBH27J6PD",
   };
 
+
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+
 
   window._sfFirebase = {
     app,
@@ -76,6 +79,7 @@
 <body>
   <div class="grain-overlay"></div>
 
+
   <div class="app-shell">
     <!-- SIDEBAR -->
     <aside class="sidebar">
@@ -89,6 +93,7 @@
           <span class="sidebar-sub">Dashboard</span>
         </div>
       </div>
+
 
       <nav class="sidebar-nav">
         <button class="nav-item active" data-view="dashboard">
@@ -109,6 +114,7 @@
         </button>
       </nav>
 
+
       <div class="sidebar-footer">
         <button class="nav-item subtle" id="logoutButton">
           <span class="nav-icon">🚪</span>
@@ -118,6 +124,7 @@
       </div>
     </aside>
 
+
     <!-- MAIN AREA -->
     <div class="main-area">
       <!-- TOP BAR -->
@@ -126,10 +133,12 @@
           <span></span><span></span><span></span>
         </button>
 
+
         <div class="topbar-breadcrumb">
           <span class="crumb-main" id="currentViewLabel">Dashboard</span>
           <span class="crumb-sub">Overview of your inventory</span>
         </div>
+
 
         <div class="topbar-right">
           <div class="inventory-pill">
@@ -138,6 +147,7 @@
             <span class="pill-value" id="currentInventoryName">Loading...</span>
             <select id="inventorySelector" style="display:none;"></select>
           </div>
+
 
           <div class="user-badge" id="userBadge">
             <div class="user-initial" id="userInitial">U</div>
@@ -148,6 +158,7 @@
           </div>
         </div>
       </header>
+
 
       <!-- CONTENT WRAPPER -->
       <main class="content">
@@ -165,6 +176,7 @@
               </div>
             </div>
 
+
             <div class="stat-card">
               <div class="stat-header">
                 <span class="stat-label">Total Value</span>
@@ -175,6 +187,7 @@
                 <span class="stat-pill neutral">Estimated</span>
               </div>
             </div>
+
 
             <div class="stat-card warning">
               <div class="stat-header">
@@ -187,6 +200,7 @@
               </div>
             </div>
 
+
             <div class="stat-card danger">
               <div class="stat-header">
                 <span class="stat-label">Expired</span>
@@ -197,6 +211,7 @@
                 <span class="stat-pill danger-soft" id="expiredValue">₹0 wasted</span>
               </div>
             </div>
+
 
             <!-- Add Item Card -->
             <div class="card add-item-card">
@@ -231,6 +246,7 @@
             </div>
           </div>
 
+
           <div class="panels-grid">
             <!-- Calendar -->
             <section class="panel calendar-container" id="calendarContainer">
@@ -245,11 +261,20 @@
               <div id="calGrid"></div>
             </section>
 
+
             <!-- Savings Summary -->
             <section class="panel">
               <div class="panel-header">
                 <h2>Savings Summary</h2>
-                <span class="panel-tag positive">This month</span>
+                <div class="panel-header-right">
+                  <span class="panel-tag positive">This view</span>
+                  <div class="savings-tabs" id="savingsPeriodTabs">
+                    <button class="savings-tab active" data-period="overall">Overall</button>
+                    <button class="savings-tab" data-period="today">Today</button>
+                    <button class="savings-tab" data-period="week">7 Days</button>
+                    <button class="savings-tab" data-period="month">30 Days</button>
+                  </div>
+                </div>
               </div>
               <div class="panel-body summary-body">
                 <div class="summary-row">
@@ -271,6 +296,7 @@
                 </div>
               </div>
             </section>
+
 
             <!-- Quick Actions -->
             <section class="panel">
@@ -296,12 +322,14 @@
           </div>
         </section>
 
+
         <!-- EXPIRY VIEW -->
         <section class="view" id="view-expiry">
           <header class="view-header">
             <h1>Expiry</h1>
             <p>See what's expiring soon and act before it's wasted.</p>
           </header>
+
 
           <div class="panel">
             <div class="panel-header">
@@ -317,6 +345,7 @@
                 <button class="filter-chip" data-range="30d">30 days</button>
               </div>
             </div>
+
 
             <div class="panel-body expiry-body">
               <div class="expiry-header-row">
@@ -334,6 +363,7 @@
                   <span class="legend-dot ok"></span><span>Safe</span>
                 </div>
               </div>
+
 
               <div class="expiry-table-wrapper">
                 <table class="expiry-table">
@@ -358,12 +388,14 @@
           </div>
         </section>
 
+
         <!-- SHOPPING VIEW -->
         <section class="view" id="view-shopping">
           <header class="view-header">
             <h1>Shopping List</h1>
             <p>Create and manage your shopping list, then sync to inventory.</p>
           </header>
+
 
           <div class="panel shopping-panel">
             <div class="panel-header">
@@ -386,6 +418,7 @@
               </div>
             </div>
 
+
             <div class="panel-body shopping-body">
               <h3 class="shopping-subtitle">Quick Add</h3>
               <div class="shopping-chips" id="shoppingQuickChips">
@@ -395,6 +428,7 @@
                 <button class="chip-btn ghost" data-item="Rice">Rice</button>
                 <button class="chip-btn ghost" data-item="Chicken">Chicken</button>
               </div>
+
 
               <div class="shopping-add-zone">
                 <div class="shopping-add-inner">
@@ -448,6 +482,7 @@
                 </div>
               </div>
 
+
               <div class="shopping-actions-row">
                 <button class="chip-btn outline" id="shopCopyBtn">Copy List</button>
                 <button class="chip-btn outline" id="shopShareBtn">Share List</button>
@@ -456,9 +491,11 @@
                 </button>
               </div>
 
+
               <h3 class="shopping-subtitle list-heading">
                 To Buy (<span id="shopToBuyLabel">0</span>)
               </h3>
+
 
               <div class="shopping-list-wrapper">
                 <ul class="shopping-list" id="shoppingList">
@@ -472,12 +509,14 @@
           </div>
         </section>
 
+
         <!-- SYNC VIEW -->
         <section class="view" id="view-sync">
           <header class="view-header">
             <h1>Sync</h1>
             <p>Share and sync inventories across devices and people.</p>
           </header>
+
 
           <div class="panel sync-panel">
             <div class="panel-header">
@@ -491,6 +530,7 @@
               </div>
             </div>
 
+
             <div class="panel-body sync-body">
               <div class="sync-grid">
                 <!-- Left: QR + link -->
@@ -499,6 +539,7 @@
                   <p class="sync-description">
                     Scan the QR code or use the invite code to connect another device to this inventory.
                   </p>
+
 
                   <div class="sync-qr-card">
                     <div class="sync-qr-placeholder" id="syncQrBox">
@@ -517,6 +558,7 @@
                     <p class="sync-hint">Share this code to invite others.</p>
                   </div>
 
+
                   <div class="sync-join-section">
                     <h4>Join Another Inventory</h4>
                     <div class="sync-join-row">
@@ -531,6 +573,7 @@
                   </div>
                 </div>
 
+
                 <!-- Right: devices + controls -->
                 <div class="sync-devices">
                   <h3 class="sync-subtitle">Connected Devices</h3>
@@ -538,9 +581,11 @@
                     <!-- filled by JS -->
                   </ul>
 
+
                   <div class="sync-actions">
                     <button class="chip-btn outline" id="syncRefreshBtn">Refresh Status</button>
                   </div>
+
 
                   <div class="sync-info">
                     <h4>How it works</h4>
@@ -557,6 +602,7 @@
       </main>
     </div>
   </div>
+
 
   <!-- Edit Item Modal -->
   <div class="modal-overlay" id="editItemModal">
@@ -595,6 +641,7 @@
       </div>
     </div>
   </div>
+
 
   <script src="js/dashboard.js"></script>
 </body>
