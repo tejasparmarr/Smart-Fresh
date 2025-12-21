@@ -1,8 +1,20 @@
 // js/dashboard.js
 
-document.addEventListener("DOMContentLoaded", () => {
-  // ---------- Firebase handles ----------
-  const fb = window._sfFirebase || {};
+
+// Wait for Firebase to load, THEN initialize dashboard
+function waitForFirebase() {
+  const fb = window.sfFirebase;
+  
+  if (!fb || !fb.auth || !fb.db) {
+    setTimeout(waitForFirebase, 50);
+    return;
+  }
+  
+  initDashboard();
+}
+
+function initDashboard() {
+  const fb = window.sfFirebase;
   const {
     auth,
     onAuthStateChanged,
@@ -21,6 +33,13 @@ document.addEventListener("DOMContentLoaded", () => {
     arrayUnion,
     Timestamp,
   } = fb;
+
+  // ... REST OF YOUR CODE (DOM elements, functions, etc.) ...
+
+
+  
+
+
 
   // ---------- DOM elements ----------
 
@@ -127,9 +146,54 @@ document.addEventListener("DOMContentLoaded", () => {
   let shoppingItems = [];
   let currentEditItemId = null;
   let calendarCurrentDate = new Date();
+  // ---------- Chart Visualization System ----------
+  let savingsChart = null;
+  let currentChartType = 'trend';
+  let chartRenderTimeout = null;
+
+// Debounce chart rendering to avoid lag
+function debouncedRenderChart() {
+  if (chartRenderTimeout) {
+    clearTimeout(chartRenderTimeout);
+  }
+  chartRenderTimeout = setTimeout(() => {
+    renderSavingsChart();
+  }, 150); // 150ms delay
+  }
+
+
+  // ---------- Savings Summary period (global) ----------
+  window.dashboardSavingsPeriod = "overall";
+
+  const savingsPeriodTabs = document.getElementById("savingsPeriodTabs");
+
+  // ---------- Savings Summary period tabs ----------
+  if (savingsPeriodTabs) {
+  savingsPeriodTabs.addEventListener('click', (event) => {
+    const btn = event.target.closest('.savings-tab[data-period]');
+    if (!btn) return;
+    
+    const period = btn.getAttribute('data-period') || 'overall';
+    
+    // Don't re-render if same period
+    if (window.dashboardSavingsPeriod === period) return;
+    
+    window.dashboardSavingsPeriod = period;
+    
+    savingsPeriodTabs.querySelectorAll('.savings-tab[data-period]').forEach(b => {
+      b.classList.toggle('active', b === btn);
+    });
+    
+    // Use debounced rendering
+    debouncedRenderChart();
+
+      updateDashboardUI();
+    });
+  }
 
   // ---------- User info from localStorage ----------
   const storedName = localStorage.getItem("sf_user_name") || "User";
+
   if (userNameEl) userNameEl.textContent = storedName;
   if (userInitialEl) {
     const firstLetter = storedName.trim().charAt(0).toUpperCase() || "U";
@@ -156,10 +220,10 @@ document.addEventListener("DOMContentLoaded", () => {
           return members.some((m) => m && m.userId === uid);
         });
 
-      console.log(`📦 User ${uid}: ${owned.length} owned, ${joined.length} joined`);
+      console.log(`Ã°Å¸â€œÂ¦ User ${uid}: ${owned.length} owned, ${joined.length} joined`);
       return [...owned, ...joined];
     } catch (error) {
-      console.error("❌ Error getting inventories:", error);
+      console.error("Ã¢ÂÅ’ Error getting inventories:", error);
       return [];
     }
   }
@@ -173,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return null;
     } catch (error) {
-      console.error("❌ Error getting active inventory ID:", error);
+      console.error("Ã¢ÂÅ’ Error getting active inventory ID:", error);
       return null;
     }
   }
@@ -189,10 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         { merge: true }
       );
-      console.log(`✅ Active inventory set to: ${invId}`);
+      console.log(`Ã¢Å“â€¦ Active inventory set to: ${invId}`);
       return { success: true };
     } catch (error) {
-      console.error("❌ Error setting active inventory:", error);
+      console.error("Ã¢ÂÅ’ Error setting active inventory:", error);
       return { success: false };
     }
   }
@@ -224,10 +288,10 @@ document.addEventListener("DOMContentLoaded", () => {
         members: arrayUnion(newMember),
       });
 
-      console.log(`✅ Joined inventory: ${inventoryData.name}`);
+      console.log(`Ã¢Å“â€¦ Joined inventory: ${inventoryData.name}`);
       return { success: true, inventoryName: inventoryData.name };
     } catch (error) {
-      console.error("❌ Error joining inventory:", error);
+      console.error("Ã¢ÂÅ’ Error joining inventory:", error);
       return { success: false, error: error.message };
     }
   }
@@ -244,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const snap = await getDocs(q);
       return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     } catch (error) {
-      console.error("❌ Error loading inventory items:", error);
+      console.error("Ã¢ÂÅ’ Error loading inventory items:", error);
       return [];
     }
   }
@@ -269,10 +333,10 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       const docRef = await addDoc(collection(db, "inventory"), itemObj);
-      console.log("✅ Item added:", docRef.id);
+      console.log("Ã¢Å“â€¦ Item added:", docRef.id);
       return { id: docRef.id, ...itemObj };
     } catch (error) {
-      console.error("❌ Error adding item:", error);
+      console.error("Ã¢ÂÅ’ Error adding item:", error);
       return null;
     }
   }
@@ -284,10 +348,10 @@ document.addEventListener("DOMContentLoaded", () => {
         ...updates,
         updatedAt: Timestamp.now(),
       });
-      console.log("✅ Item updated:", itemId);
+      console.log("Ã¢Å“â€¦ Item updated:", itemId);
       return true;
     } catch (error) {
-      console.error("❌ Error updating item:", error);
+      console.error("Ã¢ÂÅ’ Error updating item:", error);
       return false;
     }
   }
@@ -295,10 +359,10 @@ document.addEventListener("DOMContentLoaded", () => {
   async function deleteInventoryItem(itemId) {
     try {
       await deleteDoc(doc(db, "inventory", itemId));
-      console.log("✅ Item deleted:", itemId);
+      console.log("Ã¢Å“â€¦ Item deleted:", itemId);
       return true;
     } catch (error) {
-      console.error("❌ Error deleting item:", error);
+      console.error("Ã¢ÂÅ’ Error deleting item:", error);
       return false;
     }
   }
@@ -315,7 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const snap = await getDocs(q);
       return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     } catch (error) {
-      console.error("❌ Error loading shopping items:", error);
+      console.error("Ã¢ÂÅ’ Error loading shopping items:", error);
       return [];
     }
   }
@@ -337,10 +401,10 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       const docRef = await addDoc(collection(db, "shoppingList"), itemObj);
-      console.log("✅ Shopping item added:", docRef.id);
+      console.log("Ã¢Å“â€¦ Shopping item added:", docRef.id);
       return { id: docRef.id, ...itemObj };
     } catch (error) {
-      console.error("❌ Error adding shopping item:", error);
+      console.error("Ã¢ÂÅ’ Error adding shopping item:", error);
       return null;
     }
   }
@@ -348,10 +412,10 @@ document.addEventListener("DOMContentLoaded", () => {
   async function updateShoppingItem(itemId, updates) {
     try {
       await updateDoc(doc(db, "shoppingList", itemId), updates);
-      console.log("✅ Shopping item updated:", itemId);
+      console.log("Ã¢Å“â€¦ Shopping item updated:", itemId);
       return true;
     } catch (error) {
-      console.error("❌ Error updating shopping item:", error);
+      console.error("Ã¢ÂÅ’ Error updating shopping item:", error);
       return false;
     }
   }
@@ -359,84 +423,611 @@ document.addEventListener("DOMContentLoaded", () => {
   async function deleteShoppingItem(itemId) {
     try {
       await deleteDoc(doc(db, "shoppingList", itemId));
-      console.log("✅ Shopping item deleted:", itemId);
+      console.log("Ã¢Å“â€¦ Shopping item deleted:", itemId);
       return true;
     } catch (error) {
-      console.error("❌ Error deleting shopping item:", error);
+      console.error("Ã¢ÂÅ’ Error deleting shopping item:", error);
       return false;
     }
   }
 
-  // ---------- Stats Calculation (CORRECTED FORMULA) ----------
+  
 
-  function computeInventoryStats(items) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // ---------- Stats Calculation with Financial Periods ----------
 
-    let totalItems = items.length;
-    let totalValue = 0; // All items (fresh + expired)
-    let expiringSoon = 0;
-    let expired = 0;
-    let expiredValue = 0; // Only expired items
-
-    items.forEach((item) => {
-      const qty = Number(item.quantity) || 1;
-      const ppu = Number(item.pricePerUnit) || 0;
-      const itemTotalValue = qty * ppu;
-
-      // Total value includes ALL items
-      totalValue += itemTotalValue;
-
-      if (!item.expiryDate) return;
-
-      const expDate = item.expiryDate.toDate
-        ? item.expiryDate.toDate()
-        : new Date(item.expiryDate);
-
-      if (!expDate || isNaN(expDate.getTime())) return;
-
-      expDate.setHours(0, 0, 0, 0);
-      const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-
-      if (diffDays < 0) {
-        expired += 1;
-        expiredValue += itemTotalValue;
-      } else if (diffDays <= 7) {
-        expiringSoon += 1;
-      }
-    });
-
-    const saved = totalValue - expiredValue;
-    const percentSaved = totalValue > 0 ? Math.round((saved / totalValue) * 100) : 100;
-
-    return {
-      totalItems,
-      totalValue,
-      expiringSoon,
-      expired,
-      expiredValue,
-      saved,
-      percentSaved,
-    };
+  function asDateWeb(value) {
+    if (!value) return null;
+    if (value.toDate) return value.toDate();
+    return new Date(value);
   }
 
+  function getStartDateForSavingsPeriod(period) {
+    const now = new Date();
+    if (!period || period === "overall") return null;
+    if (period === "today") {
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+    if (period === "week") {
+      return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    }
+    return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  }
+  function getStartDateForSavingsPeriod(period) {
+  const now = new Date();
+  if (!period || period === 'overall') return null;
+  if (period === 'today') {
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }
+  if (period === 'week') {
+    return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  }
+  if (period === 'month') {
+    return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  }
+  return null;
+  }
+
+
+  function computeInventoryStats(items, period = "overall") {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let totalItems = items.length;
+  let totalValue = 0;
+  let expiringSoon = 0;
+  let expired = 0;
+  let expiredValue = 0;
+
+  const startDate = getStartDateForSavingsPeriod(period);
+  let freshValue = 0;
+  let periodExpiredValue = 0;
+  const now = new Date();
+
+  items.forEach((item) => {
+    const qty = Number(item.quantity) || 1;
+    const ppu = Number(item.pricePerUnit) || 0;
+    const itemTotalValue = qty * ppu;
+
+    totalValue += itemTotalValue;
+
+    const expiryDate = asDateWeb(item.expiryDate);
+    if (!expiryDate || isNaN(expiryDate.getTime())) return;
+
+    const expDate = new Date(expiryDate);
+    expDate.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      expired += 1;
+      expiredValue += itemTotalValue;
+    } else if (diffDays <= 7) {
+      expiringSoon += 1;
+    }
+
+    const purchaseDate = asDateWeb(item.createdAt || item.purchaseDate);
+    const isExpired = expiryDate < now;
+    const expiredSameDay =
+      expiryDate.getFullYear() === now.getFullYear() &&
+      expiryDate.getMonth() === now.getMonth() &&
+      expiryDate.getDate() === now.getDate();
+
+    // Overall: all fresh vs all expired
+    if (!startDate || period === "overall") {
+      if (!isExpired) {
+        freshValue += itemTotalValue;
+      } else {
+        periodExpiredValue += itemTotalValue;
+      }
+      return;
+    }
+
+    // Today: snapshot view - all fresh items vs items expired today
+    if (period === "today") {
+      if (!isExpired) {
+        freshValue += itemTotalValue;
+      } else if (expiredSameDay) {
+        periodExpiredValue += itemTotalValue;
+      }
+      return;
+    }
+
+    // Week/Month: activity within period
+    if (
+      !isExpired &&
+      purchaseDate &&
+      !isNaN(purchaseDate.getTime()) &&
+      purchaseDate >= startDate
+    ) {
+      freshValue += itemTotalValue;
+    }
+
+    if (
+      isExpired &&
+      expiryDate &&
+      !isNaN(expiryDate.getTime()) &&
+      expiryDate >= startDate
+    ) {
+      periodExpiredValue += itemTotalValue;
+    }
+  });
+
+  let saved;
+  let percentSaved;
+  if (period === "overall") {
+    saved = totalValue - expiredValue;
+    percentSaved =
+      totalValue > 0 ? Math.round((saved / totalValue) * 100) : 100;
+  } else {
+    saved = freshValue;
+    if (periodExpiredValue === 0 && freshValue > 0) {
+      percentSaved = 100;
+    } else if (freshValue + periodExpiredValue > 0) {
+      percentSaved = Math.round(
+        (freshValue / (freshValue + periodExpiredValue)) * 100
+      );
+    } else {
+      percentSaved = 0;
+    }
+  }
+
+  return {
+    totalItems,
+    totalValue,
+    expiringSoon,
+    expired,
+    expiredValue,
+    saved,
+    percentSaved,
+    periodLoss: periodExpiredValue,
+    periodProfit: freshValue,
+  };
+  }
+
+
   function updateDashboardUI() {
-    const stats = computeInventoryStats(inventoryItems);
+    const stats = computeInventoryStats(
+      inventoryItems,
+      window.dashboardSavingsPeriod || "overall"
+    );
 
     if (totalItemsEl) totalItemsEl.textContent = String(stats.totalItems);
-    if (totalValueEl) totalValueEl.textContent = `₹${stats.totalValue.toLocaleString("en-IN")}`;
+    if (totalValueEl)
+      totalValueEl.textContent = `₹${stats.totalValue.toLocaleString("en-IN")}`;
     if (expiringSoonEl) expiringSoonEl.textContent = String(stats.expiringSoon);
     if (expiredCountEl) expiredCountEl.textContent = String(stats.expired);
     if (expiredValueEl)
-      expiredValueEl.textContent = `₹${stats.expiredValue.toLocaleString("en-IN")} wasted`;
+      expiredValueEl.textContent = `₹${stats.expiredValue.toLocaleString(
+        "en-IN"
+      )} wasted`;
 
     if (savingsVsWasteEl)
-      savingsVsWasteEl.textContent = `₹${stats.saved.toLocaleString("en-IN")} / ₹${stats.expiredValue.toLocaleString("en-IN")}`;
-    if (savingsPercentEl) savingsPercentEl.textContent = `${stats.percentSaved}% saved`;
-    if (itemsConsumedEl) itemsConsumedEl.textContent = String(stats.totalItems - stats.expired);
+      savingsVsWasteEl.textContent = `₹${stats.saved.toLocaleString(
+        "en-IN"
+      )} / ₹${(stats.periodLoss ?? stats.expiredValue).toLocaleString(
+        "en-IN"
+      )}`;
+
+    if (savingsPercentEl)
+      savingsPercentEl.textContent = `${stats.percentSaved}% saved`;
+    if (itemsConsumedEl)
+      itemsConsumedEl.textContent = String(stats.totalItems - stats.expired);
     if (itemsWastedEl) itemsWastedEl.textContent = String(stats.expired);
-    if (itemsChangeEl) itemsChangeEl.textContent = `+${stats.totalItems} items`;
+    if (itemsChangeEl)
+      itemsChangeEl.textContent = `+${stats.totalItems} items`;
+    renderSavingsChart();
+    // ---------- Chart Visualization System ----------
+
+
+// Chart type selector event listener
+// Chart type selector event listener
+document.addEventListener('click', (e) => {
+  if (e.target.matches('.chart-type-btn')) {
+    const chartType = e.target.closest('.chart-type-btn').dataset.chart;
+    currentChartType = chartType;
+    
+    document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+    e.target.closest('.chart-type-btn').classList.add('active');
+    
+    renderSavingsChart();
   }
+});
+
+
+function renderSavingsChart() {
+  const canvas = document.getElementById('savingsChart');
+  if (!canvas || typeof Chart === 'undefined') {
+    return;
+  }
+
+  const period = window.dashboardSavingsPeriod || 'overall';
+
+  // Destroy previous chart
+  if (savingsChart) {
+    savingsChart.destroy();
+    savingsChart = null;
+  }
+
+  // Wait until next frame if canvas has no size yet
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) {
+    requestAnimationFrame(() => renderSavingsChart());
+    return;
+  }
+
+  // Render based on selected chart type
+  if (currentChartType === 'trend') {
+    renderTrendChart(canvas, period);
+  } else if (currentChartType === 'breakdown') {
+    renderBreakdownChart(canvas, period);
+  } else {
+    renderCategoryChart(canvas, period);
+  }
+}
+
+
+
+// 1. TREND CHART - Line chart showing daily profit/loss
+function renderTrendChart(ctx, period) {
+  let daysToShow = 7;
+  if (period === 'today') daysToShow = 1;
+  else if (period === 'week') daysToShow = 7;
+  else if (period === 'month') daysToShow = 30;
+  else if (period === 'overall') daysToShow = 30;
+
+  const days = [];
+  const profitData = [];
+  const lossData = [];
+
+  for (let i = daysToShow - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    
+    const label = period === 'today' ? 'Today' : 
+                  date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    days.push(label);
+
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(date);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    let dayProfit = 0;
+    let dayLoss = 0;
+
+    inventoryItems.forEach(item => {
+      const qty = Number(item.quantity) || 1;
+      const ppu = Number(item.pricePerUnit) || 0;
+      const value = qty * ppu;
+
+      const expiryDate = asDateWeb(item.expiryDate);
+      const purchaseDate = asDateWeb(item.createdAt);
+      const now = new Date();
+
+      if (period === 'today' && i === 0) {
+        if (!expiryDate || expiryDate > now) {
+          dayProfit += value;
+        } else if (expiryDate >= dayStart && expiryDate <= dayEnd) {
+          dayLoss += value;
+        }
+      } else {
+        if (purchaseDate && purchaseDate >= dayStart && purchaseDate <= dayEnd) {
+          if (!expiryDate || expiryDate > now) {
+            dayProfit += value;
+          }
+        }
+
+        if (expiryDate && expiryDate >= dayStart && expiryDate <= dayEnd && expiryDate < now) {
+          dayLoss += value;
+        }
+      }
+    });
+
+    profitData.push(dayProfit);
+    lossData.push(dayLoss);
+  }
+
+  savingsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [
+        {
+          label: 'Fresh Items (₹)',
+          data: profitData,
+          borderColor: 'rgba(34, 197, 94, 0.9)',
+          backgroundColor: 'rgba(34, 197, 94, 0.15)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#22C55E',
+          pointBorderColor: '#022C22',
+          pointBorderWidth: 2,
+        },
+        {
+          label: 'Expired (₹)',
+          data: lossData,
+          borderColor: 'rgba(239, 68, 68, 0.9)',
+          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#EF4444',
+          pointBorderColor: '#450A0A',
+          pointBorderWidth: 2,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: '#94a3b8',
+            font: { size: 11, family: 'Inter', weight: '600' },
+            padding: 12,
+            usePointStyle: true,
+            pointStyle: 'circle',
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.98)',
+          titleColor: '#e5e7eb',
+          bodyColor: '#e5e7eb',
+          borderColor: 'rgba(55, 65, 81, 0.95)',
+          borderWidth: 1,
+          padding: 12,
+          displayColors: true,
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ₹' + context.parsed.y.toLocaleString('en-IN');
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { 
+            color: 'rgba(55, 65, 81, 0.2)',
+            drawBorder: false,
+          },
+          ticks: { 
+            color: '#94a3b8', 
+            font: { size: 10, family: 'Inter' },
+            maxRotation: 0,
+          }
+        },
+        y: {
+          grid: { 
+            color: 'rgba(55, 65, 81, 0.2)',
+            drawBorder: false,
+          },
+          ticks: {
+            color: '#94a3b8',
+            font: { size: 10, family: 'Inter' },
+            callback: (value) => '₹' + value.toLocaleString('en-IN')
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      }
+    }
+  });
+}
+
+// 2. BREAKDOWN CHART - Donut showing Fresh vs Expired percentage
+function renderBreakdownChart(ctx, period) {
+  const stats = computeInventoryStats(inventoryItems, period);
+  
+  const freshValue = period === 'overall' ? stats.saved : stats.periodProfit;
+  const expiredValue = period === 'overall' ? stats.expiredValue : stats.periodLoss;
+
+  savingsChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Fresh Items', 'Expired Items'],
+      datasets: [{
+        data: [freshValue, expiredValue],
+        backgroundColor: [
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(239, 68, 68, 0.8)',
+        ],
+        borderColor: [
+          'rgba(34, 197, 94, 1)',
+          'rgba(239, 68, 68, 1)',
+        ],
+        borderWidth: 2,
+        hoverOffset: 10,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: {
+            color: '#94a3b8',
+            font: { size: 11, family: 'Inter', weight: '600' },
+            padding: 16,
+            usePointStyle: true,
+            pointStyle: 'circle',
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.98)',
+          titleColor: '#e5e7eb',
+          bodyColor: '#e5e7eb',
+          borderColor: 'rgba(55, 65, 81, 0.95)',
+          borderWidth: 1,
+          padding: 12,
+          callbacks: {
+            label: function(context) {
+              const value = context.parsed;
+              const total = freshValue + expiredValue;
+              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+              return context.label + ': ₹' + value.toLocaleString('en-IN') + ' (' + percentage + '%)';
+            }
+          }
+        }
+      },
+      cutout: '65%',
+    }
+  });
+}
+
+// 3. CATEGORY CHART - Bar chart showing waste by category
+function renderCategoryChart(ctx, period) {
+  const categories = ['vegetables', 'fruits', 'dairy', 'meat', 'bakery', 'other'];
+  const categoryLabels = {
+    vegetables: '🥬 Vegetables',
+    fruits: '🍎 Fruits',
+    dairy: '🥛 Dairy',
+    meat: '🍖 Meat',
+    bakery: '🍞 Bakery',
+    other: '📦 Other'
+  };
+
+  const categoryData = {};
+  const wasteData = {};
+
+  categories.forEach(cat => {
+    categoryData[cat] = 0;
+    wasteData[cat] = 0;
+  });
+
+  const now = new Date();
+  const startDate = getStartDateForSavingsPeriod(period);
+
+  inventoryItems.forEach(item => {
+    const category = item.category || 'other';
+    const qty = Number(item.quantity) || 1;
+    const ppu = Number(item.pricePerUnit) || 0;
+    const value = qty * ppu;
+
+    const expiryDate = asDateWeb(item.expiryDate);
+    const purchaseDate = asDateWeb(item.createdAt);
+    const isExpired = expiryDate && expiryDate < now;
+
+    let includeItem = false;
+    if (!startDate || period === 'overall') {
+      includeItem = true;
+    } else if (period === 'today') {
+      if (!isExpired || (expiryDate && 
+          expiryDate.getFullYear() === now.getFullYear() &&
+          expiryDate.getMonth() === now.getMonth() &&
+          expiryDate.getDate() === now.getDate())) {
+        includeItem = true;
+      }
+    } else {
+      if ((!isExpired && purchaseDate && purchaseDate >= startDate) ||
+          (isExpired && expiryDate && expiryDate >= startDate)) {
+        includeItem = true;
+      }
+    }
+
+    if (includeItem) {
+      if (categoryData[category] !== undefined) {
+        categoryData[category] += value;
+        if (isExpired) {
+          wasteData[category] += value;
+        }
+      }
+    }
+  });
+
+  const labels = categories.map(cat => categoryLabels[cat]);
+  const totalValues = categories.map(cat => categoryData[cat]);
+  const wasteValues = categories.map(cat => wasteData[cat]);
+
+  savingsChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Total Value (₹)',
+          data: totalValues,
+          backgroundColor: 'rgba(34, 197, 94, 0.7)',
+          borderColor: 'rgba(34, 197, 94, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+        },
+        {
+          label: 'Wasted (₹)',
+          data: wasteValues,
+          backgroundColor: 'rgba(239, 68, 68, 0.7)',
+          borderColor: 'rgba(239, 68, 68, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: '#94a3b8',
+            font: { size: 11, family: 'Inter', weight: '600' },
+            padding: 12,
+            usePointStyle: true,
+            pointStyle: 'circle',
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.98)',
+          titleColor: '#e5e7eb',
+          bodyColor: '#e5e7eb',
+          borderColor: 'rgba(55, 65, 81, 0.95)',
+          borderWidth: 1,
+          padding: 12,
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ₹' + context.parsed.y.toLocaleString('en-IN');
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { 
+            display: false,
+            drawBorder: false,
+          },
+          ticks: { 
+            color: '#94a3b8', 
+            font: { size: 10, family: 'Inter' }
+          }
+        },
+        y: {
+          grid: { 
+            color: 'rgba(55, 65, 81, 0.2)',
+            drawBorder: false,
+          },
+          ticks: {
+            color: '#94a3b8',
+            font: { size: 10, family: 'Inter' },
+            callback: (value) => '₹' + value.toLocaleString('en-IN')
+          }
+        }
+      }
+    }
+  });
+}
+
+  }
+
 
   // ---------- Expiry Table with Click-to-Edit ----------
 
@@ -739,7 +1330,7 @@ document.addEventListener("DOMContentLoaded", () => {
       shoppingEmptyEl.style.display = "block";
       if (shopToBuyCountEl) shopToBuyCountEl.textContent = "0";
       if (shopToBuyLabelEl) shopToBuyLabelEl.textContent = "0";
-      if (shopEstCostEl) shopEstCostEl.textContent = "₹0";
+      if (shopEstCostEl) shopEstCostEl.textContent = "";
       if (shopDoneCountEl) shopDoneCountEl.textContent = "0";
       return;
     }
@@ -771,12 +1362,12 @@ document.addEventListener("DOMContentLoaded", () => {
           </button>
           <div class="shopping-texts">
             <span class="shopping-name">${item.name}</span>
-            <span class="shopping-meta">${item.quantity} ${item.unit || ""} ${item.notes ? "• " + item.notes : ""}</span>
+            <span class="shopping-meta">${item.quantity} ${item.unit || ""} ${item.notes ? "" + item.notes : ""}</span>
           </div>
         </div>
         <div class="shopping-price">
-          <div class="shopping-price-main">₹${itemCost.toLocaleString("en-IN")}</div>
-          <div class="shopping-price-unit">₹${item.pricePerUnit}/${item.unit || "unit"}</div>
+          <div class="shopping-price-main">${itemCost.toLocaleString("en-IN")}</div>
+          <div class="shopping-price-unit">${item.pricePerUnit}/${item.unit || "unit"}</div>
         </div>
       `;
 
@@ -785,7 +1376,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (shopToBuyCountEl) shopToBuyCountEl.textContent = String(toBuy);
     if (shopToBuyLabelEl) shopToBuyLabelEl.textContent = String(toBuy);
-    if (shopEstCostEl) shopEstCostEl.textContent = `₹${estCost.toLocaleString("en-IN")}`;
+    if (shopEstCostEl) shopEstCostEl.textContent = `${estCost.toLocaleString("en-IN")}`;
     if (shopDoneCountEl) shopDoneCountEl.textContent = String(done);
   }
 
@@ -994,7 +1585,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const closeBtn = document.createElement("button");
     closeBtn.className = "modal-close";
-    closeBtn.textContent = "×";
+    closeBtn.textContent = "x";
     closeBtn.addEventListener("click", () => {
       document.body.removeChild(modal);
     });
@@ -1043,7 +1634,7 @@ document.addEventListener("DOMContentLoaded", () => {
       itemCard.appendChild(itemName);
 
       const itemMeta = document.createElement("div");
-      itemMeta.textContent = `${item.category || "other"} • ${item.quantity || 1} ${item.unit || "pieces"}`;
+      itemMeta.textContent = `${item.category || "other"}  ${item.quantity || 1} ${item.unit || "pieces"}`;
       itemMeta.style.fontSize = "11px";
       itemMeta.style.color = "rgba(148,163,184,0.95)";
       itemMeta.style.marginTop = "2px";
@@ -1126,7 +1717,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="sync-device-avatar">${(member.deviceName || "?").charAt(0).toUpperCase()}</div>
             <div class="sync-device-texts">
               <span class="sync-device-name">${member.deviceName || "Unknown"}</span>
-              <span class="sync-device-meta">${member.role || "member"} • Joined ${new Date(member.joinedAt).toLocaleDateString()}</span>
+              <span class="sync-device-meta">${member.role || "member"} Joined ${new Date(member.joinedAt).toLocaleDateString()}</span>
             </div>
           </div>
           <div class="sync-device-status">Online</div>
@@ -1266,32 +1857,87 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- Auth + Init ----------
+    // ---------- Select & Load Inventory ----------
+  async function selectInventory(invId) {
+    if (!userId) return;
 
-  if (auth && onAuthStateChanged) {
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html#login";
-        return;
-      }
+    currentInventoryId = invId;
+    await setActiveInventory(userId, invId);
 
-      userId = user.uid;
-      localStorage.setItem("sf_user_uid", userId);
+    // Load data
+    inventoryItems = await loadInventoryItems(userId, invId);
+    shoppingItems = await loadShoppingItems(userId, invId);
 
-      allInventories = await getUserInventories(userId);
+    console.log(`✅ Loaded ${inventoryItems.length} items, ${shoppingItems.length} shopping items`);
 
-      if (allInventories.length === 0) {
-        alert("No inventories found. Please create one on the mobile app first.");
-        return;
-      }
+    // Update UI
+    updateDashboardUI();
+    renderExpiryTable();
+    renderShoppingList();
+    renderCalendar();
+    renderSyncPage();
 
-      let activeInvId = await getActiveInventoryId(userId);
-      if (!activeInvId || !allInventories.find((i) => i.id === activeInvId)) {
-        activeInvId = allInventories[0].id;
-      }
+    // Update inventory name
+    const currentInv = allInventories.find((i) => i.id === invId);
+    if (inventoryNameEl) {
+      inventoryNameEl.textContent = currentInv?.name || "My Inventory";
+    }
+  }
 
-      await selectInventory(activeInvId);
-      setupInventorySelector();
+  function setupInventorySelector() {
+    if (!inventorySelector) return;
+
+    inventorySelector.innerHTML = "";
+    allInventories.forEach((inv) => {
+      const opt = document.createElement("option");
+      opt.value = inv.id;
+      opt.textContent = inv.name || "Unnamed";
+      opt.selected = inv.id === currentInventoryId;
+      inventorySelector.appendChild(opt);
+    });
+
+    inventorySelector.addEventListener("change", async () => {
+      await selectInventory(inventorySelector.value);
     });
   }
-});
+
+
+  // ---------- Auth + Init ----------
+
+ if (auth && onAuthStateChanged) {
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    userId = user.uid;
+    localStorage.setItem('sfuseruid', userId);
+    
+    allInventories = await getUserInventories(userId);
+    if (allInventories.length === 0) {
+      alert('No inventories found. Please create one on the mobile app first.');
+      return;
+    }
+    
+    let activeInvId = await getActiveInventoryId(userId);
+    if (!activeInvId || !allInventories.find(i => i.id === activeInvId)) {
+      activeInvId = allInventories[0].id;
+    }
+    
+    await selectInventory(activeInvId);
+    setupInventorySelector();
+    
+    // Initialize UI after auth
+    updateDashboardUI();
+    renderCalendar();
+  });
+}
+} // Close initDashboard
+
+// Start when DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', waitForFirebase);
+} else {
+  waitForFirebase();
+}

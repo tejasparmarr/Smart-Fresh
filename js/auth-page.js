@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
     auth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    db,
+    collection,
+    addDoc,
   } = fb;
 
   // ---------- Tab handling (Sign In / Sign Up) ----------
@@ -194,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
             password
           );
         } else {
+          // SIGNUP FLOW
           const fullName =
             document.getElementById("signupName")?.value || "";
           const email =
@@ -207,8 +211,28 @@ document.addEventListener("DOMContentLoaded", () => {
             password
           );
 
-          // Store display name locally for now
-          localStorage.setItem("sf_user_name", fullName || email.split("@")[0] || "User");
+          const user = userCredential.user;
+
+          // Store display name locally
+          const userName = fullName || email.split("@")[0] || "User";
+          localStorage.setItem("sf_user_name", userName);
+          localStorage.setItem("sf_user_uid", user.uid);
+
+          // ✅ CREATE DEFAULT INVENTORY FOR NEW USER
+          if (db && collection && addDoc) {
+            try {
+              const inventoryRef = await addDoc(collection(db, "inventories"), {
+                name: `${userName}'s Kitchen`,
+                userId: user.uid,
+                createdAt: new Date().toISOString(),
+                members: [],
+              });
+              console.log("✅ Default inventory created:", inventoryRef.id);
+            } catch (invError) {
+              console.error("❌ Error creating inventory:", invError);
+              // Don't block signup if inventory creation fails
+            }
+          }
         }
 
         const user = userCredential.user;
