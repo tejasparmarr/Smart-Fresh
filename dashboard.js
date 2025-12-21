@@ -2,7 +2,20 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // ---------- Firebase handles ----------
-  const fb = window.sfFirebase || {};   // ← changed here
+  function waitForFirebase() {
+  const fb = window.sfFirebase;
+  
+  if (!fb || !fb.auth || !fb.db) {
+    setTimeout(waitForFirebase, 50);
+    return;
+  }
+  
+  initDashboard();
+}
+
+function initDashboard() {
+  const fb = window.sfFirebase;
+  // ← changed here
   const {
     auth,
     onAuthStateChanged,
@@ -1917,6 +1930,14 @@ function renderCategoryChart(ctx, period) {
     updateDashboardUI();
     renderCalendar();
   });
+}
+} // Close initDashboard
+
+// Start when DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', waitForFirebase);
+} else {
+  waitForFirebase();
 }
 
 });
