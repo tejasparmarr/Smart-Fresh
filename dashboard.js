@@ -1,8 +1,8 @@
 // js/dashboard.js
 
-document.addEventListener("DOMContentLoaded", () => {
-  // ---------- Firebase handles ----------
-  function waitForFirebase() {
+
+// Wait for Firebase to load, THEN initialize dashboard
+function waitForFirebase() {
   const fb = window.sfFirebase;
   
   if (!fb || !fb.auth || !fb.db) {
@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initDashboard() {
   const fb = window.sfFirebase;
-  // ← changed here
   const {
     auth,
     onAuthStateChanged,
@@ -34,6 +33,9 @@ function initDashboard() {
     arrayUnion,
     Timestamp,
   } = fb;
+
+  // ... REST OF YOUR CODE (DOM elements, functions, etc.) ...
+
 
   
 
@@ -1939,6 +1941,3 @@ if (document.readyState === 'loading') {
 } else {
   waitForFirebase();
 }
-
-});
-
