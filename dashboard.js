@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // ---------- Firebase handles ----------
-  const fb = window.sfFirebase || {};
+  const fb = window.sfFirebase || {};   // ← changed here
   const {
     auth,
     onAuthStateChanged,
@@ -21,6 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
     arrayUnion,
     Timestamp,
   } = fb;
+
+    if (!auth || !db || !onAuthStateChanged) {
+    console.error("Firebase not initialised: window.sfFirebase is missing or incomplete");
+    return;
+  }
+
+
+
 
   // ---------- DOM elements ----------
 
@@ -615,30 +623,30 @@ document.addEventListener('click', (e) => {
 
 
 function renderSavingsChart() {
-  const ctx = document.getElementById('savingsChart');
-  if (!ctx || typeof Chart === 'undefined') {
-    return; // Chart.js not loaded or canvas not found
+  const canvas = document.getElementById('savingsChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) {
+    requestAnimationFrame(renderSavingsChart);
+    return;
   }
 
   const period = window.dashboardSavingsPeriod || 'overall';
 
-  // Destroy previous chart
   if (savingsChart) {
     savingsChart.destroy();
   }
-  
-  // ...rest of your code stays the same...
 
-
-  // Render based on selected chart type
   if (currentChartType === 'trend') {
-    renderTrendChart(ctx, period);
+    renderTrendChart(canvas, period);
   } else if (currentChartType === 'breakdown') {
-    renderBreakdownChart(ctx, period);
-  } else if (currentChartType === 'category') {
-    renderCategoryChart(ctx, period);
+    renderBreakdownChart(canvas, period);
+  } else {
+    renderCategoryChart(canvas, period);
   }
 }
+
 
 // 1. TREND CHART - Line chart showing daily profit/loss
 function renderTrendChart(ctx, period) {
@@ -1909,5 +1917,4 @@ function renderCategoryChart(ctx, period) {
 }
 
 });
-
 
