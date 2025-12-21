@@ -1,8 +1,17 @@
 // js/dashboard.js
 
-document.addEventListener("DOMContentLoaded", () => {
-  // ---------- Firebase handles ----------
-  const fb = window.sfFirebase || {};   // ← changed here
+// Wait for BOTH DOM and Firebase to be ready
+function initDashboard() {
+  const fb = window.sfFirebase;
+  
+  if (!fb || !fb.auth || !fb.db || !fb.onAuthStateChanged) {
+    console.log("⏳ Waiting for Firebase...");
+    setTimeout(initDashboard, 50);
+    return;
+  }
+
+  console.log("✅ Firebase ready, initializing dashboard...");
+
   const {
     auth,
     onAuthStateChanged,
@@ -21,14 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
     arrayUnion,
     Timestamp,
   } = fb;
-
-    if (!auth || !db || !onAuthStateChanged) {
-    console.error("Firebase not initialised: window.sfFirebase is missing or incomplete");
-    return;
-  }
-
-
-
 
   // ---------- DOM elements ----------
 
@@ -135,21 +136,21 @@ document.addEventListener("DOMContentLoaded", () => {
   let shoppingItems = [];
   let currentEditItemId = null;
   let calendarCurrentDate = new Date();
+  
   // ---------- Chart Visualization System ----------
   let savingsChart = null;
   let currentChartType = 'trend';
   let chartRenderTimeout = null;
 
-// Debounce chart rendering to avoid lag
-function debouncedRenderChart() {
-  if (chartRenderTimeout) {
-    clearTimeout(chartRenderTimeout);
+  // Debounce chart rendering to avoid lag
+  function debouncedRenderChart() {
+    if (chartRenderTimeout) {
+      clearTimeout(chartRenderTimeout);
+    }
+    chartRenderTimeout = setTimeout(() => {
+      renderSavingsChart();
+    }, 150); // 150ms delay
   }
-  chartRenderTimeout = setTimeout(() => {
-    renderSavingsChart();
-  }, 150); // 150ms delay
-  }
-
 
   // ---------- Savings Summary period (global) ----------
   window.dashboardSavingsPeriod = "overall";
@@ -158,24 +159,23 @@ function debouncedRenderChart() {
 
   // ---------- Savings Summary period tabs ----------
   if (savingsPeriodTabs) {
-  savingsPeriodTabs.addEventListener('click', (event) => {
-    const btn = event.target.closest('.savings-tab[data-period]');
-    if (!btn) return;
-    
-    const period = btn.getAttribute('data-period') || 'overall';
-    
-    // Don't re-render if same period
-    if (window.dashboardSavingsPeriod === period) return;
-    
-    window.dashboardSavingsPeriod = period;
-    
-    savingsPeriodTabs.querySelectorAll('.savings-tab[data-period]').forEach(b => {
-      b.classList.toggle('active', b === btn);
-    });
-    
-    // Use debounced rendering
-    debouncedRenderChart();
-
+    savingsPeriodTabs.addEventListener('click', (event) => {
+      const btn = event.target.closest('.savings-tab[data-period]');
+      if (!btn) return;
+      
+      const period = btn.getAttribute('data-period') || 'overall';
+      
+      // Don't re-render if same period
+      if (window.dashboardSavingsPeriod === period) return;
+      
+      window.dashboardSavingsPeriod = period;
+      
+      savingsPeriodTabs.querySelectorAll('.savings-tab[data-period]').forEach(b => {
+        b.classList.toggle('active', b === btn);
+      });
+      
+      // Use debounced rendering
+      debouncedRenderChart();
       updateDashboardUI();
     });
   }
@@ -188,6 +188,7 @@ function debouncedRenderChart() {
     const firstLetter = storedName.trim().charAt(0).toUpperCase() || "U";
     userInitialEl.textContent = firstLetter;
   }
+
 
   // ---------- Multi-Inventory Service ----------
 
@@ -1923,5 +1924,13 @@ function renderCategoryChart(ctx, period) {
   });
 }
 
-});
+} // End of initDashboard function
+
+// Start initialization when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDashboard);
+} else {
+  initDashboard();
+}
+
 
