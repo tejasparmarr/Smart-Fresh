@@ -9,6 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
   <!-- QR Code Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <script type="module">
@@ -263,39 +266,65 @@
 
 
             <!-- Savings Summary -->
-            <section class="panel">
-              <div class="panel-header">
-                <h2>Savings Summary</h2>
-                <div class="panel-header-right">
-                  <span class="panel-tag positive">This view</span>
-                  <div class="savings-tabs" id="savingsPeriodTabs">
-                    <button class="savings-tab active" data-period="overall">Overall</button>
-                    <button class="savings-tab" data-period="today">Today</button>
-                    <button class="savings-tab" data-period="week">7 Days</button>
-                    <button class="savings-tab" data-period="month">30 Days</button>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-body summary-body">
-                <div class="summary-row">
-                  <div>
-                    <p class="summary-label">Saved vs Wasted</p>
-                    <p class="summary-main" id="savingsVsWaste">₹0 / ₹0</p>
-                  </div>
-                  <div class="summary-badge" id="savingsPercent">0% saved</div>
-                </div>
-                <div class="summary-mini-grid">
-                  <div class="mini-summary">
-                    <span class="mini-label">Items Consumed</span>
-                    <span class="mini-value" id="itemsConsumed">0</span>
-                  </div>
-                  <div class="mini-summary">
-                    <span class="mini-label">Items Wasted</span>
-                    <span class="mini-value" id="itemsWasted">0</span>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <!-- Savings Summary -->
+<section class="panel savings-panel">
+  <div class="panel-header-vertical">
+    <div class="panel-header-top">
+      <h2>Savings Summary</h2>
+      <span class="panel-tag positive">Analytics</span>
+    </div>
+    <div class="savings-tabs" id="savingsPeriodTabs">
+      <button class="savings-tab active" data-period="overall">Overall</button>
+      <button class="savings-tab" data-period="today">Today</button>
+      <button class="savings-tab" data-period="week">7 Days</button>
+      <button class="savings-tab" data-period="month">30 Days</button>
+    </div>
+  </div>
+
+  <div class="panel-body summary-body">
+    <div class="summary-row">
+      <div>
+        <p class="summary-label">Saved vs Wasted</p>
+        <p class="summary-main" id="savingsVsWaste">₹0 / ₹0</p>
+      </div>
+      <div class="summary-badge" id="savingsPercent">0% saved</div>
+    </div>
+
+    <div class="summary-mini-grid">
+      <div class="mini-summary">
+        <span class="mini-label">Items Consumed</span>
+        <span class="mini-value" id="itemsConsumed">0</span>
+      </div>
+      <div class="mini-summary">
+        <span class="mini-label">Items Wasted</span>
+        <span class="mini-value" id="itemsWasted">0</span>
+      </div>
+    </div>
+
+    <!-- Chart Type Selector -->
+    <div class="chart-selector">
+      <button class="chart-type-btn active" data-chart="trend">
+        <span class="chart-icon">📈</span>
+        <span>Trend</span>
+      </button>
+      <button class="chart-type-btn" data-chart="breakdown">
+        <span class="chart-icon">🥧</span>
+        <span>Breakdown</span>
+      </button>
+      <button class="chart-type-btn" data-chart="category">
+        <span class="chart-icon">📊</span>
+        <span>Category</span>
+      </button>
+    </div>
+
+    <!-- Chart Container -->
+    <div class="chart-container">
+      <canvas id="savingsChart"></canvas>
+    </div>
+  </div>
+</section>
+ 
+
 
 
             <!-- Quick Actions -->

@@ -1784,3 +1784,175 @@
   background: #0f172a;
   color: #ffffff;
 }
+
+/* ---------- Chart Visualization System ---------- */
+
+/* Vertical Panel Header for Savings */
+.panel-header-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.panel-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-header-top h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Savings tabs container */
+.savings-tabs {
+  display: flex;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 12px;
+  padding: 3px;
+  width: fit-content;
+}
+
+.savings-tab {
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 160ms ease-out;
+}
+
+.savings-tab:hover {
+  color: #94a3b8;
+}
+
+.savings-tab.active {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Summary body spacing */
+.summary-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.summary-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mini-summary {
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: rgba(15,23,42,0.9);
+  border: 1px solid rgba(31,41,55,0.95);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mini-label {
+  font-size: 11px;
+  color: rgba(148,163,184,0.95);
+}
+
+.mini-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Chart Type Selector */
+.chart-selector {
+  display: flex;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.chart-type-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 160ms ease-out;
+}
+
+.chart-type-btn .chart-icon {
+  font-size: 18px;
+}
+
+.chart-type-btn:hover {
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.chart-type-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Chart Container */
+.chart-container {
+  border-radius: 14px;
+  padding: 16px 12px;
+  background: rgba(15,23,42,0.9);
+  border: 1px solid rgba(31,41,55,0.95);
+  height: 240px;
+}
+
+.chart-container canvas {
+  max-height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .chart-selector {
+    gap: 6px;
+  }
+  
+  .chart-type-btn {
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+  
+  .chart-type-btn .chart-icon {
+    font-size: 16px;
+  }
+  
+  .chart-container {
+    height: 200px;
+  }
+}
+
+.savings-tab {
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 160ms ease-out;
+  will-change: background-color, color;  /* ADD THIS */
+}
