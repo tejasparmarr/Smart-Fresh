@@ -624,20 +624,26 @@ document.addEventListener('click', (e) => {
 
 function renderSavingsChart() {
   const canvas = document.getElementById('savingsChart');
-  if (!canvas || typeof Chart === 'undefined') return;
-
-  const rect = canvas.getBoundingClientRect();
-  if (!rect.width || !rect.height) {
-    requestAnimationFrame(renderSavingsChart);
+  if (!canvas || typeof Chart === 'undefined') {
     return;
   }
 
   const period = window.dashboardSavingsPeriod || 'overall';
 
+  // Destroy previous chart
   if (savingsChart) {
     savingsChart.destroy();
+    savingsChart = null;
   }
 
+  // Wait until next frame if canvas has no size yet
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) {
+    requestAnimationFrame(() => renderSavingsChart());
+    return;
+  }
+
+  // Render based on selected chart type
   if (currentChartType === 'trend') {
     renderTrendChart(canvas, period);
   } else if (currentChartType === 'breakdown') {
@@ -646,6 +652,7 @@ function renderSavingsChart() {
     renderCategoryChart(canvas, period);
   }
 }
+
 
 
 // 1. TREND CHART - Line chart showing daily profit/loss
