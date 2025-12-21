@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SmartFresh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- QR Code Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
+  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    getDocs,
+    doc,
+    getDoc,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    setDoc,
+    arrayUnion,
+    Timestamp,
+  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA92hAm4SZHRPZWv9AVNRKZA1EIv8Z-Ftk",
+    authDomain: "smartfresh-c9f41.firebaseapp.com",
+    projectId: "smartfresh-c9f41",
+    storageBucket: "smartfresh-c9f41.firebasestorage.app",
+    messagingSenderId: "478257999268",
+    appId: "1:478257999268:web:6f6bf2209d0ee565596531",
+    measurementId: "G-DVBH27J6PD",
+  };
+
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+
+  window._sfFirebase = {
+    app,
+    auth,
+    db,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
+    collection,
+    query,
+    where,
+    getDocs,
+    doc,
+    getDoc,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    setDoc,
+    arrayUnion,
+    Timestamp,
+  };
+</script>
+</head>
+<body>
+  <div class="grain-overlay"></div>
+
+
+  <div class="app-shell">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-wrapper small">
+          <img src="gol.png" alt="SmartFresh Logo">
+          <div class="logo-glow"></div>
+        </div>
+        <div class="sidebar-title-group">
+          <span class="sidebar-title">SmartFresh</span>
+          <span class="sidebar-sub">Dashboard</span>
+        </div>
+      </div>
+
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="dashboard">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-item" data-view="expiry">
+          <span class="nav-icon">⏰</span>
+          <span class="nav-label">Expiry</span>
+        </button>
+        <button class="nav-item" data-view="shopping">
+          <span class="nav-icon">🛒</span>
+          <span class="nav-label">Shopping List</span>
+        </button>
+        <button class="nav-item" data-view="sync">
+          <span class="nav-icon">🔄</span>
+          <span class="nav-label">Sync</span>
+        </button>
+      </nav>
+
+
+      <div class="sidebar-footer">
+        <button class="nav-item subtle" id="logoutButton">
+          <span class="nav-icon">🚪</span>
+          <span class="nav-label">Logout</span>
+        </button>
+        <p class="sidebar-hint">Made with 💚 for zero waste</p>
+      </div>
+    </aside>
+
+
+    <!-- MAIN AREA -->
+    <div class="main-area">
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+
+
+        <div class="topbar-breadcrumb">
+          <span class="crumb-main" id="currentViewLabel">Dashboard</span>
+          <span class="crumb-sub">Overview of your inventory</span>
+        </div>
+
+
+        <div class="topbar-right">
+          <div class="inventory-pill">
+            <span class="pill-dot"></span>
+            <span class="pill-label">Inventory</span>
+            <span class="pill-value" id="currentInventoryName">Loading...</span>
+            <select id="inventorySelector" style="display:none;"></select>
+          </div>
+
+
+          <div class="user-badge" id="userBadge">
+            <div class="user-initial" id="userInitial">U</div>
+            <div class="user-meta">
+              <span class="user-name" id="userName">User</span>
+              <span class="user-role">SmartFresh User</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+
+      <!-- CONTENT WRAPPER -->
+      <main class="content">
+        <!-- DASHBOARD VIEW -->
+        <section class="view active" id="view-dashboard">
+          <div class="cards-grid">
+            <div class="stat-card primary">
+              <div class="stat-header">
+                <span class="stat-label">Total Items</span>
+                <span class="stat-icon">📦</span>
+              </div>
+              <div class="stat-value" id="totalItems">0</div>
+              <div class="stat-footer">
+                <span class="stat-pill positive" id="itemsChange">+0 today</span>
+              </div>
+            </div>
+
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">Total Value</span>
+                <span class="stat-icon">💰</span>
+              </div>
+              <div class="stat-value currency" id="totalValue">₹0</div>
+              <div class="stat-footer">
+                <span class="stat-pill neutral">Estimated</span>
+              </div>
+            </div>
+
+
+            <div class="stat-card warning">
+              <div class="stat-header">
+                <span class="stat-label">Expiring Soon</span>
+                <span class="stat-icon">⏳</span>
+              </div>
+              <div class="stat-value" id="expiringSoonCount">0</div>
+              <div class="stat-footer">
+                <span class="stat-pill warning-soft" id="expiringRange">Next 7 days</span>
+              </div>
+            </div>
+
+
+            <div class="stat-card danger">
+              <div class="stat-header">
+                <span class="stat-label">Expired</span>
+                <span class="stat-icon">❌</span>
+              </div>
+              <div class="stat-value" id="expiredCount">0</div>
+              <div class="stat-footer">
+                <span class="stat-pill danger-soft" id="expiredValue">₹0 wasted</span>
+              </div>
+            </div>
+
+
+            <!-- Add Item Card -->
+            <div class="card add-item-card">
+              <div class="card-header">
+                <h3>Add New Item</h3>
+              </div>
+              <div class="card-body add-item-form">
+                <input id="addItemName" placeholder="Item name *" />
+                <input id="addItemQty" type="number" min="1" placeholder="Quantity *" value="1" />
+                <select id="addItemUnit">
+                  <option value="pieces">Pieces</option>
+                  <option value="kg">Kilograms</option>
+                  <option value="g">Grams</option>
+                  <option value="L">Liters</option>
+                  <option value="mL">Milliliters</option>
+                </select>
+                <select id="addItemCategory">
+                  <option value="other">Other</option>
+                  <option value="vegetables">Vegetables</option>
+                  <option value="fruits">Fruits</option>
+                  <option value="dairy">Dairy</option>
+                  <option value="meat">Meat</option>
+                  <option value="bakery">Bakery</option>
+                </select>
+                <input id="addItemLocation" placeholder="Location (Fridge, Pantry, etc.)" />
+                <input id="addItemExpiry" type="date" placeholder="Expiry Date" />
+                <input id="addItemPrice" type="number" min="0" step="0.01" placeholder="Total Price (₹)" />
+                <input id="addItemPricePerUnit" type="number" min="0" step="0.01" placeholder="Price per unit (₹)" />
+                <textarea id="addItemNotes" placeholder="Notes (optional)"></textarea>
+                <button id="addItemBtn">Add to Inventory</button>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="panels-grid">
+            <!-- Calendar -->
+            <section class="panel calendar-container" id="calendarContainer">
+              <div class="calendar-header">
+                <h3>Expiry Calendar</h3>
+                <div class="calendar-nav">
+                  <button id="calPrevBtn">‹</button>
+                  <span id="calMonthLabel">Loading...</span>
+                  <button id="calNextBtn">›</button>
+                </div>
+              </div>
+              <div id="calGrid"></div>
+            </section>
+
+
+            <!-- Savings Summary -->
+            <!-- Savings Summary -->
+<section class="panel savings-panel">
+  <div class="panel-header-vertical">
+    <div class="panel-header-top">
+      <h2>Savings Summary</h2>
+      <span class="panel-tag positive">Analytics</span>
+    </div>
+    <div class="savings-tabs" id="savingsPeriodTabs">
+      <button class="savings-tab active" data-period="overall">Overall</button>
+      <button class="savings-tab" data-period="today">Today</button>
+      <button class="savings-tab" data-period="week">7 Days</button>
+      <button class="savings-tab" data-period="month">30 Days</button>
+    </div>
+  </div>
+
+  <div class="panel-body summary-body">
+    <div class="summary-row">
+      <div>
+        <p class="summary-label">Saved vs Wasted</p>
+        <p class="summary-main" id="savingsVsWaste">₹0 / ₹0</p>
+      </div>
+      <div class="summary-badge" id="savingsPercent">0% saved</div>
+    </div>
+
+    <div class="summary-mini-grid">
+      <div class="mini-summary">
+        <span class="mini-label">Items Consumed</span>
+        <span class="mini-value" id="itemsConsumed">0</span>
+      </div>
+      <div class="mini-summary">
+        <span class="mini-label">Items Wasted</span>
+        <span class="mini-value" id="itemsWasted">0</span>
+      </div>
+    </div>
+
+    <!-- Chart Type Selector -->
+    <div class="chart-selector">
+      <button class="chart-type-btn active" data-chart="trend">
+        <span class="chart-icon">📈</span>
+        <span>Trend</span>
+      </button>
+      <button class="chart-type-btn" data-chart="breakdown">
+        <span class="chart-icon">🥧</span>
+        <span>Breakdown</span>
+      </button>
+      <button class="chart-type-btn" data-chart="category">
+        <span class="chart-icon">📊</span>
+        <span>Category</span>
+      </button>
+    </div>
+
+    <!-- Chart Container -->
+    <div class="chart-container">
+      <canvas id="savingsChart"></canvas>
+    </div>
+  </div>
+</section>
+ 
+
+
+
+            <!-- Quick Actions -->
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Quick Actions</h2>
+                <span class="panel-tag">Do more</span>
+              </div>
+              <div class="panel-body quick-grid">
+                <button class="quick-btn" data-view="shopping">
+                  <span class="quick-icon">🛒</span>
+                  <span class="quick-label">Open Shopping List</span>
+                </button>
+                <button class="quick-btn" data-view="expiry">
+                  <span class="quick-icon">⏰</span>
+                  <span class="quick-label">Check Expiring Items</span>
+                </button>
+                <button class="quick-btn" data-view="sync">
+                  <span class="quick-icon">🔄</span>
+                  <span class="quick-label">Sync Inventories</span>
+                </button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+
+        <!-- EXPIRY VIEW -->
+        <section class="view" id="view-expiry">
+          <header class="view-header">
+            <h1>Expiry</h1>
+            <p>See what's expiring soon and act before it's wasted.</p>
+          </header>
+
+
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-header-left">
+                <h2>Expiring Items</h2>
+                <span class="panel-tag warning-soft">Click to edit</span>
+              </div>
+              <div class="expiry-filters" id="expiryFilters">
+                <button class="filter-chip active" data-range="all">All</button>
+                <button class="filter-chip" data-range="today">Today</button>
+                <button class="filter-chip" data-range="3d">3 days</button>
+                <button class="filter-chip" data-range="7d">7 days</button>
+                <button class="filter-chip" data-range="30d">30 days</button>
+              </div>
+            </div>
+
+
+            <div class="panel-body expiry-body">
+              <div class="expiry-header-row">
+                <div class="expiry-search">
+                  <input
+                    type="text"
+                    id="expirySearch"
+                    class="expiry-search-input"
+                    placeholder="Search items..."
+                  />
+                </div>
+                <div class="expiry-legend">
+                  <span class="legend-dot critical"></span><span>Expired</span>
+                  <span class="legend-dot soon"></span><span>Expiring soon</span>
+                  <span class="legend-dot ok"></span><span>Safe</span>
+                </div>
+              </div>
+
+
+              <div class="expiry-table-wrapper">
+                <table class="expiry-table">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Qty</th>
+                      <th>Location</th>
+                      <th>Expiry</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="expiryTableBody">
+                    <!-- rows filled by JS -->
+                  </tbody>
+                </table>
+                <div class="expiry-empty" id="expiryEmpty" style="display:none;">
+                  No items match this filter.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- SHOPPING VIEW -->
+        <section class="view" id="view-shopping">
+          <header class="view-header">
+            <h1>Shopping List</h1>
+            <p>Create and manage your shopping list, then sync to inventory.</p>
+          </header>
+
+
+          <div class="panel shopping-panel">
+            <div class="panel-header">
+              <div class="panel-header-left">
+                <h2>Shopping Overview</h2>
+              </div>
+              <div class="shopping-stats">
+                <div class="shopping-stat">
+                  <span class="stat-label">To Buy</span>
+                  <span class="stat-value" id="shopToBuyCount">0</span>
+                </div>
+                <div class="shopping-stat">
+                  <span class="stat-label">Est. Cost</span>
+                  <span class="stat-value currency" id="shopEstCost">₹0</span>
+                </div>
+                <div class="shopping-stat">
+                  <span class="stat-label">Done</span>
+                  <span class="stat-value" id="shopDoneCount">0</span>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="panel-body shopping-body">
+              <h3 class="shopping-subtitle">Quick Add</h3>
+              <div class="shopping-chips" id="shoppingQuickChips">
+                <button class="chip-btn ghost" data-item="Milk">Milk</button>
+                <button class="chip-btn ghost" data-item="Bread">Bread</button>
+                <button class="chip-btn ghost" data-item="Eggs">Eggs</button>
+                <button class="chip-btn ghost" data-item="Rice">Rice</button>
+                <button class="chip-btn ghost" data-item="Chicken">Chicken</button>
+              </div>
+
+
+              <div class="shopping-add-zone">
+                <div class="shopping-add-inner">
+                  <div class="shopping-add-main">
+                    <span class="add-icon">＋</span>
+                    <input
+                      type="text"
+                      id="shopItemName"
+                      class="shopping-input"
+                      placeholder="Add item to list"
+                    />
+                  </div>
+                  <div class="shopping-add-fields-full">
+                    <input
+                      type="number"
+                      min="1"
+                      id="shopItemQty"
+                      class="shopping-input"
+                      placeholder="Quantity"
+                      value="1"
+                    />
+                    <select id="shopItemUnit" class="shopping-input">
+                      <option value="pieces">Pieces</option>
+                      <option value="kg">Kilograms</option>
+                      <option value="g">Grams</option>
+                      <option value="L">Liters</option>
+                      <option value="mL">Milliliters</option>
+                    </select>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      id="shopItemPricePerUnit"
+                      class="shopping-input"
+                      placeholder="Price per unit (₹)"
+                    />
+                    <select id="shopItemCategory" class="shopping-input">
+                      <option value="other">Other</option>
+                      <option value="vegetables">Vegetables</option>
+                      <option value="fruits">Fruits</option>
+                      <option value="dairy">Dairy</option>
+                      <option value="meat">Meat</option>
+                    </select>
+                    <textarea
+                      id="shopItemNotes"
+                      class="shopping-input"
+                      placeholder="Notes (optional)"
+                    ></textarea>
+                    <button class="chip-btn primary" id="shopAddBtn">Add to List</button>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="shopping-actions-row">
+                <button class="chip-btn outline" id="shopCopyBtn">Copy List</button>
+                <button class="chip-btn outline" id="shopShareBtn">Share List</button>
+                <button class="chip-btn outline subtle" id="shopClearDoneBtn">
+                  Clear Done
+                </button>
+              </div>
+
+
+              <h3 class="shopping-subtitle list-heading">
+                To Buy (<span id="shopToBuyLabel">0</span>)
+              </h3>
+
+
+              <div class="shopping-list-wrapper">
+                <ul class="shopping-list" id="shoppingList">
+                  <!-- items injected by JS -->
+                </ul>
+                <div class="shopping-empty" id="shoppingEmpty">
+                  Your shopping list is empty. Start by adding an item above.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- SYNC VIEW -->
+        <section class="view" id="view-sync">
+          <header class="view-header">
+            <h1>Sync</h1>
+            <p>Share and sync inventories across devices and people.</p>
+          </header>
+
+
+          <div class="panel sync-panel">
+            <div class="panel-header">
+              <div class="panel-header-left">
+                <h2>Inventory Sync Center</h2>
+                <span class="panel-tag">Current: <span id="syncInventoryName">Loading...</span></span>
+              </div>
+              <div class="sync-status">
+                <span class="sync-dot"></span>
+                <span class="sync-text">Connected</span>
+              </div>
+            </div>
+
+
+            <div class="panel-body sync-body">
+              <div class="sync-grid">
+                <!-- Left: QR + link -->
+                <div class="sync-share">
+                  <h3 class="sync-subtitle">Share This Inventory</h3>
+                  <p class="sync-description">
+                    Scan the QR code or use the invite code to connect another device to this inventory.
+                  </p>
+
+
+                  <div class="sync-qr-card">
+                    <div class="sync-qr-placeholder" id="syncQrBox">
+                      <!-- QR generated here -->
+                    </div>
+                    <div class="sync-link-row">
+                      <input
+                        type="text"
+                        id="syncInviteLink"
+                        class="sync-link-input"
+                        readonly
+                        value="Loading..."
+                      />
+                      <button class="chip-btn outline" id="syncCopyLinkBtn">Copy</button>
+                    </div>
+                    <p class="sync-hint">Share this code to invite others.</p>
+                  </div>
+
+
+                  <div class="sync-join-section">
+                    <h4>Join Another Inventory</h4>
+                    <div class="sync-join-row">
+                      <input
+                        type="text"
+                        id="syncJoinInput"
+                        class="sync-join-input"
+                        placeholder="Enter inventory code"
+                      />
+                      <button class="sync-join-btn" id="syncJoinBtn">Join</button>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- Right: devices + controls -->
+                <div class="sync-devices">
+                  <h3 class="sync-subtitle">Connected Devices</h3>
+                  <ul class="sync-device-list" id="syncDeviceList">
+                    <!-- filled by JS -->
+                  </ul>
+
+
+                  <div class="sync-actions">
+                    <button class="chip-btn outline" id="syncRefreshBtn">Refresh Status</button>
+                  </div>
+
+
+                  <div class="sync-info">
+                    <h4>How it works</h4>
+                    <p>
+                      Your inventory lives in the cloud. Any change on one device is synced to others
+                      in real time using your SmartFresh account.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+
+  <!-- Edit Item Modal -->
+  <div class="modal-overlay" id="editItemModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Item</h3>
+        <button class="modal-close" id="editModalClose">×</button>
+      </div>
+      <div class="modal-form">
+        <input id="editItemName" placeholder="Item name *" />
+        <input id="editItemQty" type="number" min="1" placeholder="Quantity *" />
+        <select id="editItemUnit">
+          <option value="pieces">Pieces</option>
+          <option value="kg">Kilograms</option>
+          <option value="g">Grams</option>
+          <option value="L">Liters</option>
+          <option value="mL">Milliliters</option>
+        </select>
+        <select id="editItemCategory">
+          <option value="other">Other</option>
+          <option value="vegetables">Vegetables</option>
+          <option value="fruits">Fruits</option>
+          <option value="dairy">Dairy</option>
+          <option value="meat">Meat</option>
+          <option value="bakery">Bakery</option>
+        </select>
+        <input id="editItemLocation" placeholder="Location (Fridge, Pantry, etc.)" />
+        <input id="editItemExpiry" type="date" placeholder="Expiry Date" />
+        <input id="editItemPrice" type="number" min="0" step="0.01" placeholder="Total Price (₹)" />
+        <input id="editItemPricePerUnit" type="number" min="0" step="0.01" placeholder="Price per unit (₹)" />
+        <textarea id="editItemNotes" placeholder="Notes (optional)"></textarea>
+        <div class="modal-actions">
+          <button class="modal-btn primary" id="editItemSaveBtn">Save Changes</button>
+          <button class="modal-btn danger" id="editItemDeleteBtn">Delete Item</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
