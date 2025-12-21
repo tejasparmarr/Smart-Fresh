@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // ---------- Firebase handles ----------
-  const fb = window._sfFirebase || {};
+  const fb = window.sfFirebase || {};
   const {
     auth,
     onAuthStateChanged,
@@ -1909,4 +1909,5 @@ function renderCategoryChart(ctx, period) {
 }
 
 });
+
 
