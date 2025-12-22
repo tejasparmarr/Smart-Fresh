@@ -497,12 +497,14 @@ function debouncedRenderChart() {
     expDate.setHours(0, 0, 0, 0);
     const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) {
-      expired += 1;
-      expiredValue += itemTotalValue;
-    } else if (diffDays <= 7) {
-      expiringSoon += 1;
-    }
+// NEW: today (0 days) counts as expired for tiles as well
+if (diffDays <= 0) {
+  expired += 1;
+  expiredValue += itemTotalValue;
+} else if (diffDays <= 7) {
+  expiringSoon += 1;
+}
+
 
     const purchaseDate = asDateWeb(item.createdAt || item.purchaseDate);
     const isExpired = expiryDate < now;
@@ -1032,16 +1034,23 @@ function renderCategoryChart(ctx, period) {
   // ---------- Expiry Table with Click-to-Edit ----------
 
   function getItemStatus(item) {
-    if (!item.expiryDate) return "unknown";
-    const expiryDate = item.expiryDate.toDate ? item.expiryDate.toDate() : new Date(item.expiryDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    expiryDate.setHours(0, 0, 0, 0);
-    const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-    if (daysUntilExpiry < 0) return "expired";
-    if (daysUntilExpiry <= 3) return "expiring";
-    return "fresh";
+  if (!item.expiryDate) return 'unknown';
+
+  const expiryDate = item.expiryDate.toDate ? item.expiryDate.toDate() : new Date(item.expiryDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  expiryDate.setHours(0, 0, 0, 0);
+
+  const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
+  // Today and past dates => expired, positive days => expiring / fresh
+  if (daysUntilExpiry < 0) return 'expired';
+  if (daysUntilExpiry <= 3) return 'expiring';
+  return 'fresh';
   }
+
+
+
 
   function renderExpiryTable(range = "all", search = "") {
     if (!expiryTableBody) return;
@@ -1093,17 +1102,18 @@ function renderCategoryChart(ctx, period) {
       const expDate = item.expiryDate.toDate ? item.expiryDate.toDate() : new Date(item.expiryDate);
       if (!expDate || isNaN(expDate.getTime())) return;
 
-      const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
       let status = "ok";
       let statusLabel = "Safe";
 
-      if (diffDays < 0) {
+      if (diffDays <= 0) {
         status = "critical";
         statusLabel = "Expired";
       } else if (diffDays <= 3) {
         status = "soon";
         statusLabel = "Soon";
       }
+
 
       const tr = document.createElement("tr");
       tr.style.cursor = "pointer";
