@@ -323,7 +323,10 @@ function debouncedRenderChart() {
         unit: data.unit || "pieces",
         category: data.category || "other",
         location: data.location || "",
-        expiryDate: data.expiryDate ? Timestamp.fromDate(new Date(data.expiryDate)) : null,
+                expiryDate: data.expiryDate 
+          ? Timestamp.fromDate(new Date(data.expiryDate)) 
+          : Timestamp.fromDate(new Date(new Date().setDate(new Date().getDate() + 7))),
+
         price: Number(data.price) || 0,
         pricePerUnit: Number(data.pricePerUnit) || 0,
         totalPrice: Number(data.price) || 0,
